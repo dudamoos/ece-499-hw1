@@ -8,6 +8,7 @@ import cv2
 
 transport = udp.UdpSocket(shared.PC_CAM_ADDR, receiving=True)
 cv2.namedWindow('imwindow')
+for i in range(3): cv2.waitKey(10) # get the window to appear to start with
 
 last = time.time()
 while True:
@@ -15,7 +16,7 @@ while True:
 	buf = transport.recv_big()
 	period = time.time() - start
 	print("Bitrate:", 8 * len(buf) / period, "bits/s")
-	img = shared.buf2img(buf)
+	img = shared.bufz2img(buf)
 	cv2.imshow('imwindow', img)
 	cv2.waitKey(10)
 	
