@@ -14,9 +14,10 @@ while True:
 	start = time.time()
 	buf = transport.recv(shared.IMG_SIZE)
 	period = time.time() - start
-	print("Bitrate:", (shared.IMG_SIZE + 1) / period, "bits/s")
+	print("Bitrate:", 8 * len(buf) / period, "bits/s")
 	img = shared.buf2img(buf)
 	cv2.imshow('imwindow', img)
+	cv2.waitKey(10)
 	
 	new_last = time.time()
 	print("Receive Rate:", 1/(new_last - last), "Hz")

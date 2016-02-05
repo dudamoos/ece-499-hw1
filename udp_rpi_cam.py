@@ -12,6 +12,8 @@ image = cv2.imread('robot.bmp')
 PERIOD = 1.0/5
 
 while True:
-	start = time.time()
-	buf = transport.send(shared.img2buf(image))
-	time.sleep(start + PERIOD - time.time())
+	next_time = time.time() + PERIOD
+	transport.send_big(shared.img2bufz(image))
+	throttle_delay = next_time - time.time()
+	print("Sleep for", throttle_delay, "until", next_time)
+	if throttle_delay > 0: time.sleep(throttle_delay)

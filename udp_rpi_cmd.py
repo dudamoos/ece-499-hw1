@@ -15,4 +15,4 @@ while True:
 	print("Received values:", dofs)
 	dofs_doubled = [2*d for d in dofs]
 	print("Doubled values:", dofs_doubled)
-	print("Bitrate:", (shared.DOFS_BUF_LEN + 1) / period, "bits/s")
+	print("Bitrate:", 8 * shared.DOFS_BUF_LEN / period, "bits/s")

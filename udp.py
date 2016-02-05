@@ -16,6 +16,7 @@ class UdpSocket(object):
 		self.sock.close()
 	
 	def send(self, data):
+		data = array.array('B', data)
 		cksum = ~reduce(lambda x,y: x+y, data) & 0xFF
 		packet = bytearray(data) + bytearray([cksum])
 		sent = self.sock.sendto(packet, self.addr)
@@ -29,8 +30,8 @@ class UdpSocket(object):
 		# Could do validation on same address, but that's probably overkill here
 		remaining = length + 1
 		packet, address = self.sock.recvfrom(remaining)
-		assert len(buf) > 0, "Network unavailable"
-		remaining -= len(buf)
+		assert len(packet) > 0, "Network unavailable"
+		remaining -= len(packet)
 		if require_full:
 			while remaining > 0:
 				buf, address = self.sock.recvfrom(remaining)
