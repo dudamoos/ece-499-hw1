@@ -12,7 +12,7 @@ cv2.namedWindow('imwindow')
 last = time.time()
 while True:
 	start = time.time()
-	buf = transport.recv(shared.IMG_SIZE)
+	buf = transport.recv_big()
 	period = time.time() - start
 	print("Bitrate:", 8 * len(buf) / period, "bits/s")
 	img = shared.buf2img(buf)
