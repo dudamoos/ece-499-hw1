@@ -1,3 +1,4 @@
 secret.py
 *.py[o|c]
+*.class
 *~
