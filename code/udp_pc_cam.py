@@ -7,6 +7,7 @@ import time
 import cv2
 
 transport = udp.UdpSocket(shared.PC_CAM_ADDR, receiving=True)
+transport.set_recv_bufsize_big()
 cv2.namedWindow('imwindow')
 for i in range(3): cv2.waitKey(10) # get the window to appear to start with
 

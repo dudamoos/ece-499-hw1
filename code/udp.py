@@ -18,6 +18,10 @@ class UdpSocket(object):
 		if (receiving): self.sock.bind(self.addr)
 	def __del__(self):
 		self.sock.close()
+	def set_send_bufsize(self, size): self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, size)
+	def set_recv_bufsize(self, size): self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, size)
+	def set_send_bufsize_big(self): self.set_send_bufsize(UdpSocket._send_big_chunk + 2000)
+	def set_recv_bufsize_big(self): self.set_recv_bufsize(UdpSocket._send_big_chunk + 2000)
 	
 	def send(self, data):
 		data = array.array('B', data)

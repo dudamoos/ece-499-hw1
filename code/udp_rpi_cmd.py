@@ -25,6 +25,7 @@ print("Using OpenCM via", device, "@", baud, "baud")
 usb = serial.Serial(device, baud)
 
 transport = udp.UdpSocket(shared.RPI_CMD_ADDR, receiving=True)
+transport.set_recv_bufsize(8)
 
 while True:
 	cmd = transport.recv(1).tostring()
