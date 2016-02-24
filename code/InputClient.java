@@ -17,7 +17,7 @@ public class InputClient extends JFrame implements WindowListener, KeyListener, 
 	public static final int KEY_L = 3; // Pivot Right
 	public static final int KEY_STOP = 4; // Stop
 	public static final int KEY_UNKNOWN = 5;
-	public static final byte[] chars = { 'I', 'J', 'K', 'L', ' ', '?' };
+	public static final byte[] chars = { 'i', 'j', 'k', 'l', ' ', '?' };
 	final boolean[] keys = new boolean[6]; // polling array
 	{ keys[KEY_STOP] = true; }
 	public static int keyIndex(KeyEvent e) {
@@ -56,14 +56,16 @@ public class InputClient extends JFrame implements WindowListener, KeyListener, 
 		transport = new UdpSocket(RPI_HOST, CMD_PORT);
 	} catch (IOException e) { throw new java.io.UncheckedIOException(e); } }
 	boolean running = true;
-	public static final int PERIOD = 1000 / 10;
+	public static final int PERIOD = 1000 / 1;
 	
 	@Override public void run() {
 		try {
 			while (running) {
-				long nextStart = System.currentTimeMillis() + PERIOD;
+				long curTime = System.currentTimeMillis();
+				long nextStart = curTime + PERIOD;
 				for (int i = 0; i < KEY_UNKNOWN; i++) if (keys[i]) {
 					transport.send(Arrays.copyOfRange(chars, i, i+1));
+					System.out.println("Sent command: '" + ((char) chars[i]) + "' @ " + curTime);
 					break;
 				}
 				long throttleDelay = nextStart - System.currentTimeMillis();
