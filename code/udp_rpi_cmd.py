@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python -O
 from __future__ import print_function
 
 import shared
@@ -29,6 +29,6 @@ transport.set_recv_bufsize(8)
 
 while True:
 	cmd = transport.recv(1).tostring()
-	print("Received command: '", cmd, "' @ ", time.time(), sep='')
+	#print("Received command: '", cmd, "' @ ", time.time(), sep='')
 	usb.write(cmd)
 

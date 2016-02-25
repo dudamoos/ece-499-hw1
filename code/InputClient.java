@@ -56,7 +56,7 @@ public class InputClient extends JFrame implements WindowListener, KeyListener, 
 		transport = new UdpSocket(RPI_HOST, CMD_PORT);
 	} catch (IOException e) { throw new java.io.UncheckedIOException(e); } }
 	boolean running = true;
-	public static final int PERIOD = 1000 / 1;
+	public static final int PERIOD = 1000 / 20;
 	
 	@Override public void run() {
 		try {
@@ -65,7 +65,7 @@ public class InputClient extends JFrame implements WindowListener, KeyListener, 
 				long nextStart = curTime + PERIOD;
 				for (int i = 0; i < KEY_UNKNOWN; i++) if (keys[i]) {
 					transport.send(Arrays.copyOfRange(chars, i, i+1));
-					System.out.println("Sent command: '" + ((char) chars[i]) + "' @ " + curTime);
+					//System.out.printf("Sent command: '%c' @ %f\n", (char) chars[i], curTime/1000.0);
 					break;
 				}
 				long throttleDelay = nextStart - System.currentTimeMillis();
