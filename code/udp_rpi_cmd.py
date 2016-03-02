@@ -7,20 +7,9 @@ import serial
 import time, sys, os
 
 # find device to write to
-device = '/dev/ttyACM0'
-if len(sys.argv) > 1:
-	device = sys.argv[1]
-	if not os.access(device, os.W_OK):
-		print("Error: Cannot write to device.")
-		exit(1)
-elif not os.access(device, os.W_OK):
-	device = '/dev/ttyACM1'
-	if not os.access(device, os.W_OK):
-		print("Error: Default devices not accessible. Please specify device.")
-		exit(1)
-
-baud = 9600
-if len(sys.argv) > 2: baud = int(sys.argv[2])
+device = shared.get_serial(sys.argv[1] if len(sys.argv) > 1 else None)
+if device == None: exit(1)
+baud = int(sys.argv[2]) if len(sys.argv) > 2 else 9600
 print("Using OpenCM via", device, "@", baud, "baud")
 usb = serial.Serial(device, baud)
 

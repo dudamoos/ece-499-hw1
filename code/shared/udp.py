@@ -1,12 +1,8 @@
 #!/usr/bin/python
 
-import sys
+import sys, socket, array, struct
 if sys.version_info >= (3, 0):
 	from functools import reduce
-
-import socket
-import array
-import struct
 
 class UdpSocket(object):
 	_len_pack = struct.Struct('<I')

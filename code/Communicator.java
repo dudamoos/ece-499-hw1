@@ -21,7 +21,7 @@ public class Communicator {
 	private static final UdpSocket transportCmd;
 	private static final UdpSocket transportCam;
 	static { try {
-		secret.load(new java.io.FileReader("secret.py"));
+		secret.load(new java.io.FileReader("shared/secret.py"));
 		String rpiHost = secret.getProperty("RPI_HOST");
 		RPI_HOST = rpiHost.substring(1, rpiHost.length() - 1);
 		String pcHost = secret.getProperty("PC_HOST");
@@ -67,7 +67,6 @@ public class Communicator {
 	public void camLoop() { try {
 		while (runningCam) {
 			final byte[] jpeg = transportCam.recvBig();
-			System.out.println("Received frame ...");
 			if (jpeg == null) {
 				System.err.println("Warning: Failed to receive camera image!");
 				continue;
