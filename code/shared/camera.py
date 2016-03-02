@@ -16,13 +16,13 @@ def bufz2img(buf): return cv2.imdecode(numpy.frombuffer(buf, IMG_DTYPE), cv2.IMR
 
 # Color tracking
 RED_MAX_1 = numpy.array((  0 + 30, 255, 255), IMG_DTYPE)
-RED_MIN_1 = numpy.array((  0     ,  50,   0), IMG_DTYPE)
+RED_MIN_1 = numpy.array((  0     , 100,   0), IMG_DTYPE)
 RED_MAX_2 = numpy.array((180     , 255, 255), IMG_DTYPE)
-RED_MIN_2 = numpy.array((180 - 30,  50,   0), IMG_DTYPE)
+RED_MIN_2 = numpy.array((180 - 30, 100,   0), IMG_DTYPE)
 BLUE_MAX  = numpy.array((120 + 30, 255, 255), IMG_DTYPE)
-BLUE_MIN  = numpy.array((120 - 30,  50,   0), IMG_DTYPE)
+BLUE_MIN  = numpy.array((120 - 30, 100,   0), IMG_DTYPE)
 GREEN_MAX = numpy.array(( 60 + 30, 255, 255), IMG_DTYPE)
-GREEN_MIN = numpy.array(( 60 - 30,  50,   0), IMG_DTYPE)
+GREEN_MIN = numpy.array(( 60 - 30, 100,   0), IMG_DTYPE)
 
 RGB2HSV_FLAG = cv2.COLOR_BGR2HSV
 
@@ -41,7 +41,7 @@ def create_mask_green(image):
 # Object detection - returns (x, y, onscreen:True/False)
 def find_object_center(image):
 	[ys, xs] = image.nonzero()
-	if len(ys) == 0: return (0, 0, False)
+	if len(ys) < 200: return (0, 0, False)
 	x =  xs.mean() / (IMG_WIDTH  / 2.0) - 1.0
 	y = -ys.mean() / (IMG_HEIGHT / 2.0) + 1.0
 	return (x, y, True)

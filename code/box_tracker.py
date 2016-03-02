@@ -22,8 +22,9 @@ usb = serial.Serial(device, baud)
 
 # Create video capture
 capture = cv2.VideoCapture(0)
-cv2.namedWindow('Cam Viewer')
-cv2.namedWindow('Object Detect')
+#cv2.namedWindow('Cam Viewer')
+#cv2.namedWindow('Object Detect')
+#for i in range(3): cv2.waitKey(10)
 
 # Create controller - target, Kp, Ki, Kd, bound, cur_time, window_size
 pid_x = pid.PidController(0, numpy.pi/4, 0, 0.01, 1.0, time.time(), 6)
@@ -41,11 +42,11 @@ try:
 		x, y, onscreen = cam.find_object_center(mask)
 		if onscreen:
 			print("Onscreen @", (x, y))
-			cam.draw_marker(mask, x, y, 0x7F)
+			#cam.draw_marker(mask, x, y, 0x7F)
 			# control
 			ctl = pid_x.control(x, time.time())
 			vel = abs(int(ctl * 800))
-			dir = 'l' if ctl < 0 else 'j' if ctl > 0 else ' '
+			dir = 'j' if ctl < 0 else 'l' if ctl > 0 else ' '
 			cmd = dir + str(vel)
 			print("Direction byte:", dir, ", Velocity:", vel)
 		else:
@@ -53,8 +54,9 @@ try:
 			cmd = 'j400' # pivot left at speed 400 to search
 		usb.write(cmd)
 		
-		cv2.imshow('Cam Viewer', image)
-		cv2.imshow('Object Detect', mask)
+		#cv2.imshow('Cam Viewer', image)
+		#cv2.imshow('Object Detect', mask)
+		#cv2.waitKey(10)
 		
 		throttle_delay = next_time - time.time()
 		if throttle_delay > 0: time.sleep(throttle_delay)
