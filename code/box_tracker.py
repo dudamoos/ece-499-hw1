@@ -25,11 +25,11 @@ capture = cv2.VideoCapture(0)
 #cv2.namedWindow('Cam Viewer')
 #cv2.namedWindow('Object Detect')
 #for i in range(3): cv2.waitKey(10)
-import shared.udp as udp
-transport = udp.UdpSocket(shared.PC_CAM_ADDR)
+#import shared.udp as udp
+#transport = udp.UdpSocket(shared.PC_CAM_ADDR)
 
 # Create controller - target, Kp, Ki, Kd, bound, cur_time, window_size
-pid_x = pid.PidController(0, numpy.pi/4, 0.05, 0.1, 1.0, time.time(), 6)
+pid_x = pid.PidController(0, 0.4, 0.05, 0.1, 1.0, time.time(), 6)
 
 try:
 	while True:
@@ -62,7 +62,7 @@ try:
 		#cv2.imshow('Object Detect', mask)
 		#cv2.waitKey(10)
 		
-		transport.send_big(cam.img2bufz(mask))
+		#transport.send_big(cam.img2bufz(mask))
 		throttle_delay = next_time - time.time()
 		if throttle_delay > 0: time.sleep(throttle_delay)
 except KeyboardInterrupt:

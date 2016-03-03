@@ -42,7 +42,7 @@ def create_mask_green(image):
 def find_object_center(image):
 	[ys, xs] = image.nonzero()
 	print("\x1b[0KFound", len(ys), "pixels positive")
-	if len(ys) < 1000: return (0, 0, False)
+	if len(ys) < 500: return (0, 0, False)
 	x =  xs.mean() / (IMG_WIDTH  / 2.0) - 1.0
 	y = -ys.mean() / (IMG_HEIGHT / 2.0) + 1.0
 	return (x, y, True)
