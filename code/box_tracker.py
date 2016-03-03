@@ -25,9 +25,11 @@ capture = cv2.VideoCapture(0)
 #cv2.namedWindow('Cam Viewer')
 #cv2.namedWindow('Object Detect')
 #for i in range(3): cv2.waitKey(10)
+import shared.udp as udp
+transport = udp.UdpSocket(shared.PC_CAM_ADDR)
 
 # Create controller - target, Kp, Ki, Kd, bound, cur_time, window_size
-pid_x = pid.PidController(0, numpy.pi/4, 0, 0.01, 1.0, time.time(), 6)
+pid_x = pid.PidController(0, numpy.pi/4, 0.05, 0.1, 1.0, time.time(), 6)
 
 try:
 	while True:
@@ -35,32 +37,37 @@ try:
 		
 		success, image = capture.read()
 		if not success:
-			print("Warning: Couldn't read video frame!", file=sys.stderr)
+			print("\x1b[0KWarning: Couldn't read video frame!", file=sys.stderr)
 			continue
 		image = cv2.resize(image, (cam.IMG_WIDTH, cam.IMG_HEIGHT))
 		mask = make_mask(image)
 		x, y, onscreen = cam.find_object_center(mask)
 		if onscreen:
-			print("Onscreen @", (x, y))
-			#cam.draw_marker(mask, x, y, 0x7F)
+			print("\x1b[0KOnscreen @", (x, y))
+			cam.draw_marker(mask, x, y, 0x7F)
 			# control
 			ctl = pid_x.control(x, time.time())
-			vel = abs(int(ctl * 800))
+			vel = abs(int(ctl * 650))
 			dir = 'j' if ctl < 0 else 'l' if ctl > 0 else ' '
 			cmd = dir + str(vel)
-			print("Direction byte:", dir, ", Velocity:", vel)
+			print("\x1b[0KDirection byte:", dir, ", Velocity:", vel)
 		else:
-			print("Offscreen ... searching - spinning left")
+			print("\x1b[0KOffscreen ... searching - spinning left\n\x1b[0K")
+			print("\x1b[0KDirection byte: j , Velocity: 400")
 			cmd = 'j400' # pivot left at speed 400 to search
 		usb.write(cmd)
+		print("\r\x1b[4A", end='')
 		
 		#cv2.imshow('Cam Viewer', image)
 		#cv2.imshow('Object Detect', mask)
 		#cv2.waitKey(10)
 		
+		transport.send_big(cam.img2bufz(mask))
 		throttle_delay = next_time - time.time()
 		if throttle_delay > 0: time.sleep(throttle_delay)
 except KeyboardInterrupt:
 	capture.release()
 	cv2.destroyWindow('Camera Viewer')
 	cv2.destroyWindow('Object Tracker')
+	print("\n\n\n")
+
