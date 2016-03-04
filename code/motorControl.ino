@@ -4,12 +4,11 @@
 #define DXL_BUS_SERIAL1 1  //Dynamixel on Serial1(USART1)  <-OpenCM9.04
 
 /* Dynamixel ID defines */
-#define lw 101
-#define rw 102
+#define lw 100
+#define rw 101
 
 Dynamixel Dxl(DXL_BUS_SERIAL1); 
  
-int speed = 150;
 int timeout = 2000; //in units of ms
 int timestamp = 0;
 
@@ -28,41 +27,83 @@ void setup() {
   delay(500);
  
   //Setup interrupt for keyboard input
-  SerialUSB.attachInterrupt(direction);
+  SerialUSB.println("To change speed or direction, type a command:");
+  SerialUSB.println("Command Structure is DirectionSpeed, ex: j324");
+  SerialUSB.println("Direction: i:Forward j:Left k:Backward l:Right");
+  SerialUSB.println("Speed range: 0 <--> 850");
+  SerialUSB.attachInterrupt(control);
 }
 
-void direction(byte* input, byte ncount){
+void control(byte* input, byte ncount){
+  
+  SerialUSB.println();
   SerialUSB.println("Received Command");
+  //Get Direction
+  char direction = input[0];
+  
+  //Get the Speed
+  char charSpeed[(ncount-1)];
+  SerialUSB.print("Input Buffer:");
+  for(int i = 0; i < ncount-1; i++){
+    charSpeed[i] = char(input[i+1]);
+    SerialUSB.print(char(input[i+1]));
+  }
+   SerialUSB.println();
+   SerialUSB.print("charSpeed:");
+  for(int i = 0; i < ncount-1; i++){
+    SerialUSB.print(charSpeed[i]);
+  }
+  
+  int speed = atoi(charSpeed);
+  SerialUSB.println();
+  SerialUSB.print("Integer Speed: ");
+  SerialUSB.println(speed);
+  
+  //Make sure speed is within range
+  if (speed < 0){
+    SerialUSB.println("Speed cannot be less than 0. Setting speed to 0.");
+    speed = 0;
+  }
+  else if (speed > 1023){
+    SerialUSB.println("Speed cannot be greater than 850. Setting speed to 850.");
+    speed = 850;
+  }
+  
   /*Forward*/
-  if (char(input[0]) == 'i'){
+  if (direction == 'i'){
     digitalWrite(BOARD_LED_PIN, LOW);
+    SerialUSB.println("Direction: Forward");
     Dxl.goalSpeed(lw, speed);
-    Dxl.goalSpeed(rw, (speed+15)|0x400);
+    Dxl.goalSpeed(rw, speed|0x400);
     
   }
   /*Backward*/
-  else if (char(input[0]) == 'k'){ 
+  else if (direction == 'k'){ 
     digitalWrite(BOARD_LED_PIN, LOW);
+    SerialUSB.println("Direction: Backward");
     Dxl.goalSpeed(lw, speed | 0x400);
-    Dxl.goalSpeed(rw, (speed+15));
+    Dxl.goalSpeed(rw, speed);
     
   }
   /*Pivot Left*/
-  else if (char(input[0]) == 'j'){
+  else if (direction == 'j'){
     digitalWrite(BOARD_LED_PIN, LOW);
     Dxl.goalSpeed(lw, speed | 0x400);
+    SerialUSB.println("Direction: Pivot Left");
     Dxl.goalSpeed(rw, speed | 0x400);
    
   }
   /*Pivot Right*/
-  else if (char(input[0]) == 'l'){
+  else if (direction == 'l'){
     digitalWrite(BOARD_LED_PIN, LOW);
     Dxl.goalSpeed(lw, speed);
+    SerialUSB.println("Direction: Pivot Right");
     Dxl.goalSpeed(rw, speed); 
   }
   /*Stop*/
   else{
     digitalWrite(BOARD_LED_PIN, HIGH);
+    SerialUSB.println("Direction: Stop");
     Dxl.goalSpeed(lw, 0);
     Dxl.goalSpeed(rw, 0);
   }
@@ -79,4 +120,3 @@ void loop(){
   }
   
 }
-
