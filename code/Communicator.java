@@ -34,13 +34,15 @@ public class Communicator {
 	} catch (IOException e) { throw new UncheckedIOException(e); } }
 	
 	/**************************** KEY TRANSMITTER  ****************************/
-	public static final int KEY_I = 0; // Forward
+	public static final int KEY_I = 0; // Trolley In
 	public static final int KEY_J = 1; // Pivot Left
-	public static final int KEY_K = 2; // Backward
+	public static final int KEY_K = 2; // Trolley Out
 	public static final int KEY_L = 3; // Pivot Right
-	public static final int KEY_STOP = 4; // Stop
-	public static final int KEY_UNKNOWN = 5;
-	public static final byte[] chars = { 'i', 'j', 'k', 'l', ' ', '?' };
+	public static final int KEY_E = 4; // Pulley up
+	public static final int KEY_D = 5; // Pulley down
+	public static final int KEY_S = 6; // Claw open
+	public static final int KEY_F = 7; // Claw close
+	public static final int KEY_UNKNOWN = 8;
 	private final boolean[] keys;
 	private boolean runningCmd = true;
 	public static final int CMD_PERIOD = 1000 / 20;
@@ -48,17 +50,19 @@ public class Communicator {
 	public void cmdLoop() { try {
 		while (runningCmd) {
 			final long nextStart = System.currentTimeMillis() + CMD_PERIOD;
-			for (int i = 0; i < KEY_UNKNOWN; i++) if (keys[i]) {
-				transportCmd.send(Arrays.copyOfRange(chars, i, i+1));
-				break;
-			}
+			byte[] buf = new byte[4];
+			buf[0] = (byte)(keys[KEY_J] ? 'j' : keys[KEY_L] ? 'l' : 'n');
+			buf[1] = (byte)(keys[KEY_I] ? 'i' : keys[KEY_K] ? 'k' : 'm');
+			buf[2] = (byte)(keys[KEY_E] ? 'e' : keys[KEY_D] ? 'd' : 'c');
+			buf[3] = (byte)(keys[KEY_S] ? 's' : keys[KEY_F] ? 'f' : 'x');
+			transportCmd.send(buf);
 			final long throttleDelay = nextStart - System.currentTimeMillis();
 			if (throttleDelay > 0) {
 				try { Thread.sleep(throttleDelay); }
 				catch (InterruptedException e) { }
 			}
 		}
-		transportCmd.send(Arrays.copyOfRange(chars, KEY_STOP, KEY_UNKNOWN));
+		transportCmd.send(new byte[] { (byte) ' ' });
 	} catch (IOException e) { throw new UncheckedIOException(e); } }
 	
 	/**************************** IMAGE RECEIVER   ****************************/
@@ -67,7 +71,6 @@ public class Communicator {
 	public void camLoop() { try {
 		while (runningCam) {
 			final byte[] jpeg = transportCam.recvBig();
-			System.out.println("Received frame ...");
 			if (jpeg == null) {
 				System.err.println("Warning: Failed to receive camera image!");
 				continue;

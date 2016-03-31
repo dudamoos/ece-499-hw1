@@ -12,8 +12,7 @@ import java.awt.Frame;
 
 public class InputClient extends Canvas implements WindowListener, KeyListener, Consumer<Image> {
 	/**************************** KEY POLLER       ****************************/
-	private final boolean[] keys = new boolean[6]; // polling array
-	{ keys[Communicator.KEY_STOP] = true; } // Always stop if not moving
+	private final boolean[] keys = new boolean[Communicator.KEY_UNKNOWN + 1]; // polling array
 	
 	// interesting events for polling
 	@Override public void keyPressed(KeyEvent e) { keys[keyIndex(e)] = true; }
@@ -25,6 +24,10 @@ public class InputClient extends Canvas implements WindowListener, KeyListener, 
 			case KeyEvent.VK_J: return Communicator.KEY_J;
 			case KeyEvent.VK_K: return Communicator.KEY_K;
 			case KeyEvent.VK_L: return Communicator.KEY_L;
+			case KeyEvent.VK_E: return Communicator.KEY_E;
+			case KeyEvent.VK_D: return Communicator.KEY_D;
+			case KeyEvent.VK_S: return Communicator.KEY_S;
+			case KeyEvent.VK_F: return Communicator.KEY_F;
 			default: return Communicator.KEY_UNKNOWN;
 		}
 	}
