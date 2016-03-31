@@ -28,6 +28,10 @@ public class InputClient extends Canvas implements WindowListener, KeyListener, 
 			case KeyEvent.VK_D: return Communicator.KEY_D;
 			case KeyEvent.VK_S: return Communicator.KEY_S;
 			case KeyEvent.VK_F: return Communicator.KEY_F;
+			case KeyEvent.VK_T: return Communicator.KEY_T;
+			case KeyEvent.VK_G: return Communicator.KEY_G;
+			case KeyEvent.VK_Y: return Communicator.KEY_Y;
+			case KeyEvent.VK_H: return Communicator.KEY_H;
 			default: return Communicator.KEY_UNKNOWN;
 		}
 	}

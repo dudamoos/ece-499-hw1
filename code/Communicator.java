@@ -34,15 +34,19 @@ public class Communicator {
 	} catch (IOException e) { throw new UncheckedIOException(e); } }
 	
 	/**************************** KEY TRANSMITTER  ****************************/
-	public static final int KEY_I = 0; // Trolley In
-	public static final int KEY_J = 1; // Pivot Left
-	public static final int KEY_K = 2; // Trolley Out
-	public static final int KEY_L = 3; // Pivot Right
-	public static final int KEY_E = 4; // Pulley up
-	public static final int KEY_D = 5; // Pulley down
-	public static final int KEY_S = 6; // Claw open
-	public static final int KEY_F = 7; // Claw close
-	public static final int KEY_UNKNOWN = 8;
+	public static final int KEY_I =  0; // Trolley In
+	public static final int KEY_J =  1; // Pivot Left
+	public static final int KEY_K =  2; // Trolley Out
+	public static final int KEY_L =  3; // Pivot Right
+	public static final int KEY_E =  4; // Pulley up
+	public static final int KEY_D =  5; // Pulley down
+	public static final int KEY_S =  6; // Claw open
+	public static final int KEY_F =  7; // Claw close
+	public static final int KEY_T =  8; // Tune left pulley up
+	public static final int KEY_G =  9; // Tune left pulley down
+	public static final int KEY_Y = 10; // Tune right pulley up
+	public static final int KEY_H = 11; // Tune right pulley down
+	public static final int KEY_UNKNOWN = 12;
 	private final boolean[] keys;
 	private boolean runningCmd = true;
 	public static final int CMD_PERIOD = 1000 / 20;
@@ -53,7 +57,9 @@ public class Communicator {
 			byte[] buf = new byte[4];
 			buf[0] = (byte)(keys[KEY_J] ? 'j' : keys[KEY_L] ? 'l' : 'n');
 			buf[1] = (byte)(keys[KEY_I] ? 'i' : keys[KEY_K] ? 'k' : 'm');
-			buf[2] = (byte)(keys[KEY_E] ? 'e' : keys[KEY_D] ? 'd' : 'c');
+			buf[2] = (byte)(keys[KEY_E] ? 'e' : keys[KEY_D] ? 'd' :
+			                keys[KEY_T] ? 't' : keys[KEY_G] ? 'g' :
+			                keys[KEY_Y] ? 'y' : keys[KEY_H] ? 'h' : 'c');
 			buf[3] = (byte)(keys[KEY_S] ? 's' : keys[KEY_F] ? 'f' : 'x');
 			transportCmd.send(buf);
 			final long throttleDelay = nextStart - System.currentTimeMillis();

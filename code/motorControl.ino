@@ -11,8 +11,10 @@ static const byte DXL_CLAW_GRIP    = 104;
 static const int grip_open     = 600;
 static const int grip_closed   = 300;
 static const int boom_speed    = 125; //50;
-static const int trolley_speed = 200;
-static const int pulley_speed  = 150;
+static const int trolley_speed = 400; //200;
+static const int pulley_speed  = 200;
+static const int pulley2_speed = 150;
+static const int pulley_cal    = 100;
 
 static const int timeout = 2000; //in units of ms
 static int timestamp = 0;
@@ -50,16 +52,20 @@ void direction(byte* input, byte ncount) {
             // char : <indicate stop or go cmd on led>    <command dynamixel over UART>
             case 'i': digitalWrite(BOARD_LED_PIN,  LOW); Dxl.goalSpeed(DXL_TROLLEY_MOVE, trolley_speed        ); break; // trolley move out
             case 'k': digitalWrite(BOARD_LED_PIN,  LOW); Dxl.goalSpeed(DXL_TROLLEY_MOVE, trolley_speed | 0x400); break; // trolley move in
-            case 'm': digitalWrite(BOARD_LED_PIN, HIGH); Dxl.goalSpeed(DXL_TROLLEY_MOVE, 0                    ); break; // trolley stop
+            case 'm':                                    Dxl.goalSpeed(DXL_TROLLEY_MOVE, 0                    ); break; // trolley stop
             case 'j': digitalWrite(BOARD_LED_PIN,  LOW); Dxl.goalSpeed(DXL_BOOM_ROT    , boom_speed           ); break; // boom pivot left
             case 'l': digitalWrite(BOARD_LED_PIN,  LOW); Dxl.goalSpeed(DXL_BOOM_ROT    , boom_speed    | 0x400); break; // boom pivot right
-            case 'n': digitalWrite(BOARD_LED_PIN, HIGH); Dxl.goalSpeed(DXL_BOOM_ROT    , 0                    ); break; // boom stop
-            case 'e': digitalWrite(BOARD_LED_PIN,  LOW); Dxl.goalSpeed(DXL_CLAW_PULLEY , pulley_speed         );
-                                                         Dxl.goalSpeed(DXL_CLAW_PULLEY2, pulley_speed  | 0x400); break; // pulley lift up
-            case 'd': digitalWrite(BOARD_LED_PIN,  LOW); Dxl.goalSpeed(DXL_CLAW_PULLEY , pulley_speed  | 0x400); 
-                                                         Dxl.goalSpeed(DXL_CLAW_PULLEY2, pulley_speed         ); break; // pulley lower down
-            case 'c': digitalWrite(BOARD_LED_PIN, HIGH); Dxl.goalSpeed(DXL_CLAW_PULLEY , 0                    );
+            case 'n':                                    Dxl.goalSpeed(DXL_BOOM_ROT    , 0                    ); break; // boom stop
+            case 'e': digitalWrite(BOARD_LED_PIN,  LOW); Dxl.goalSpeed(DXL_CLAW_PULLEY , pulley_speed  | 0x400);
+                                                         Dxl.goalSpeed(DXL_CLAW_PULLEY2, pulley2_speed        ); break; // pulley lift up
+            case 'd': digitalWrite(BOARD_LED_PIN,  LOW); Dxl.goalSpeed(DXL_CLAW_PULLEY , pulley_speed         ); 
+                                                         Dxl.goalSpeed(DXL_CLAW_PULLEY2, pulley2_speed | 0x400); break; // pulley lower down
+            case 'c':                                    Dxl.goalSpeed(DXL_CLAW_PULLEY , 0                    );
                                                          Dxl.goalSpeed(DXL_CLAW_PULLEY2, 0                    ); break; // pulley stop
+            case 't': digitalWrite(BOARD_LED_PIN,  LOW); Dxl.goalSpeed(DXL_CLAW_PULLEY , pulley_cal   | 0x400); break;
+            case 'g': digitalWrite(BOARD_LED_PIN,  LOW); Dxl.goalSpeed(DXL_CLAW_PULLEY , pulley_cal           ); break;
+            case 'y': digitalWrite(BOARD_LED_PIN,  LOW); Dxl.goalSpeed(DXL_CLAW_PULLEY2, pulley_cal           ); break;
+            case 'h': digitalWrite(BOARD_LED_PIN,  LOW); Dxl.goalSpeed(DXL_CLAW_PULLEY2, pulley_cal    | 0x400); break;
             case 's': digitalWrite(BOARD_LED_PIN,  LOW); Dxl.goalPosition(DXL_CLAW_GRIP, grip_open  ); break; // claw open   position!
             case 'f': digitalWrite(BOARD_LED_PIN,  LOW); Dxl.goalPosition(DXL_CLAW_GRIP, grip_closed); break; // claw closed position!
             case 'x': break;
