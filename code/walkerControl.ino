@@ -100,11 +100,13 @@ void loop() {
     case 'r':
       digitalWrite(BOARD_LED_PIN, LOW);
       Dxl.syncWrite(30, 1, lo_packet, 12); delay(500);
+      walk_phase = 0;
       digitalWrite(BOARD_LED_PIN, HIGH);
       return;
     case 'f':
       digitalWrite(BOARD_LED_PIN, LOW);
       Dxl.syncWrite(30, 1, hi_packet, 12); delay(500);
+      walk_phase = 0;
       digitalWrite(BOARD_LED_PIN, HIGH);
       return;
     default:
@@ -112,17 +114,4 @@ void loop() {
       return;
   }
       //delay(5000);
-      
-//      Dxl.syncWrite(30, 2, sf_packet1, 12); delay(500); // push forward // David used a delay of 1000ms
-//      Dxl.wheelMode(DXL_LF); Dxl.wheelMode(DXL_RF); Dxl.wheelMode(DXL_LM); Dxl.wheelMode(DXL_RM); // enable wheel mode
-//      Dxl.syncWrite(30, 1, sf_packet2, 8); delay(800); // push forward // David used a delay of 1000ms
-//      Dxl.jointMode(DXL_LF); Dxl.jointMode(DXL_RF); Dxl.jointMode(DXL_LM); Dxl.jointMode(DXL_RM); // enable joint mode
-//      Dxl.syncWrite(30, 2, sf_packet3, 12); delay(200); // ensure legs in correct position
-//      Dxl.syncWrite(30, 2, sf_packet4, 6); delay(500); // switch moving halves // David used a delay of 1000ms
-//      Dxl.wheelMode(DXL_LB); Dxl.wheelMode(DXL_RB); Dxl.wheelMode(DXL_LM); Dxl.wheelMode(DXL_RM); // enable wheel mode
-//      Dxl.syncWrite(30, 1, sf_packet5, 6); delay(800); // push forward // David used a delay of 1000ms
-//      Dxl.jointMode(DXL_LB); Dxl.jointMode(DXL_RB); Dxl.jointMode(DXL_LM); Dxl.jointMode(DXL_RM); // enable joint mode
-//      Dxl.syncWrite(30, 2, sf_packet6, 12); delay(200); // ensure legs in correct position
-//      Dxl.syncWrite(30, 2, sf_packet7, 12); delay(500); // push forward // David used a delay of 1000ms
-//      digitalWrite(BOARD_LED_PIN, HIGH);
 }
