@@ -1,7 +1,7 @@
 Dynamixel Dxl (/* DXL bus on Serial1 (USART1) */ 1); // IDs below
 static const byte DXL_RF = 10, DXL_RM =  5, DXL_RB = 1;
 static const byte DXL_LF = 20, DXL_LM = 12, DXL_LB = 99;
-static const byte DXL_G1 = 50, DXL_G2 = 51; // TODO set the gripper IDs
+static const byte DXL_G1 = 101, DXL_G2 = 2; // TODO set the gripper IDs
 
 // For each motor: leg forward, leg backward, leg up, leg down
 static const word FRNT_RF =    0, BACK_RF =  500, HOLD_RF = 125, HI_RF = 818, LO_RF = 205, FROT_RF = 0x190, BROT_RF = 0x590;
@@ -11,6 +11,9 @@ static const word FRNT_LF = 1023, BACK_LF =  523, HOLD_LF = 673, HI_LF = 205, LO
 static const word FRNT_LM = 1023, BACK_LM =  523, HOLD_LM = 898, HI_LM = 205, LO_LM = 818, FROT_LM = 0x590, BROT_LM = 0x190;
 static const word FRNT_LB =  500, BACK_LB =    0, HOLD_LB = 125, HI_LB = 818, LO_LB = 205, FROT_LB = 0x590, BROT_LB = 0x190;
 static const word J_SPEED = 300;
+
+static const word G1_TOP = 358, G1_FWD = 512, G1_MID = 665, G1_LOW = 818;
+static const word G2_CLOSED = 120, G2_OPEN = 275;
 
 static word sf_packet0[18] = { DXL_LF,   LO_LF, J_SPEED, DXL_RM,   LO_RM, J_SPEED, DXL_LB,   LO_LB, J_SPEED, DXL_RF, FRNT_RF, J_SPEED, DXL_LM, FRNT_LM, J_SPEED, DXL_RB, FRNT_RB, J_SPEED };
 static word sf_packet1[18] = { DXL_LF, BACK_LF, J_SPEED, DXL_RM, BACK_RM, J_SPEED, DXL_LB, BACK_LB, J_SPEED, DXL_RF,   LO_RF, J_SPEED, DXL_LM,   LO_LM, J_SPEED, DXL_RB,   LO_RB, J_SPEED };
@@ -44,15 +47,19 @@ void setup() {
   digitalWrite(BOARD_LED_PIN, HIGH);
   Dxl.jointMode(BROADCAST_ID); Dxl.maxTorque(BROADCAST_ID, 1023);
   Dxl.syncWrite(30, 2, sf_packet0, 18);
-  delay(5000);
+  Dxl.setPosition(DXL_G1, G1_FWD, J_SPEED);
+  Dxl.setPosition(DXL_G2, G2_OPEN, J_SPEED);
+  delay(500);
   
   // TODO set initial positions of servos
  
   //Setup interrupt for keyboard input
   SerialUSB.println("Commands:");
-  SerialUSB.println(" - q = left step  forward, e = right step  forward");
-  SerialUSB.println(" - a = left step backward, d = right step backward");
-  SerialUSB.println(" - w = full standing, s = full crouching");
+  SerialUSB.println(" - w = step forward, s = step backward");
+  SerialUSB.println(" - a = pivot left, d = pivot right");
+  SerialUSB.println(" - r = full standing, f = full crouching");
+  SerialUSB.println(" - t = close claw, g = open claw");
+  SerialUSB.println(" - 1,2,3,4 = position claw top,fwd,mid,low");
   // TODO do we need a key to put the motors back in walking phase?
 }
 
@@ -129,22 +136,22 @@ void loop() {
       return;
     case 'a':
       digitalWrite(BOARD_LED_PIN, LOW);
-      if (walk_phase < 2 || walk_phase > 3) {
-        Dxl.syncWrite(30, 2, pr_packet0, 18); delay(500);
-        walk_phase = 2;
+      if (walk_phase < 4 || walk_phase > 5) {
+        Dxl.syncWrite(30, 2, pr_packet1, 18); delay(500);
+        walk_phase = 4;
       }
-      if (walk_phase == 2) {
-        Dxl.wheelMode(DXL_RF); Dxl.wheelMode(DXL_LM); Dxl.wheelMode(DXL_RB); Dxl.syncWrite(32, 1, pr_packet5, 6); delay(800);
+      if (walk_phase == 4) {
+        Dxl.syncWrite(30, 2, pr_packet0, 18); delay(500);
+        Dxl.wheelMode(DXL_LF); Dxl.wheelMode(DXL_RM); Dxl.wheelMode(DXL_LB); Dxl.syncWrite(32, 1, pl_packet5, 6); delay(800);
         Dxl.jointMode(BROADCAST_ID); Dxl.syncWrite(30, 2, pr_packet4, 18); delay(500);
         Dxl.jointMode(BROADCAST_ID); Dxl.syncWrite(30, 2, pr_packet4, 18); delay(200); // twice just to make sure it takes
-        Dxl.syncWrite(30, 2, pr_packet3, 18); delay(500);
-        walk_phase = 3;
+        walk_phase = 5;
       } else {
-        Dxl.wheelMode(DXL_LF); Dxl.wheelMode(DXL_RM); Dxl.wheelMode(DXL_LB); Dxl.syncWrite(32, 1, pr_packet2, 6); delay(800);
+        Dxl.syncWrite(30, 2, pr_packet3, 18); delay(500);
+        Dxl.wheelMode(DXL_RF); Dxl.wheelMode(DXL_LM); Dxl.wheelMode(DXL_RB); Dxl.syncWrite(32, 1, pl_packet2, 6); delay(800);
         Dxl.jointMode(BROADCAST_ID); Dxl.syncWrite(30, 2, pr_packet1, 18); delay(500);
         Dxl.jointMode(BROADCAST_ID); Dxl.syncWrite(30, 2, pr_packet1, 18); delay(200); // twice just to make sure it takes
-        Dxl.syncWrite(30, 2, pr_packet0, 18); delay(500);
-        walk_phase = 2;
+        walk_phase = 4;
       }
       digitalWrite(BOARD_LED_PIN, HIGH);
       return;
@@ -160,6 +167,12 @@ void loop() {
       walk_phase = 0;
       digitalWrite(BOARD_LED_PIN, HIGH);
       return;
+    case '1': digitalWrite(BOARD_LED_PIN, LOW); Dxl.setPosition(DXL_G1, G1_TOP, J_SPEED); digitalWrite(BOARD_LED_PIN, HIGH); return;
+    case '2': digitalWrite(BOARD_LED_PIN, LOW); Dxl.setPosition(DXL_G1, G1_FWD, J_SPEED); digitalWrite(BOARD_LED_PIN, HIGH); return;
+    case '3': digitalWrite(BOARD_LED_PIN, LOW); Dxl.setPosition(DXL_G1, G1_MID, J_SPEED); digitalWrite(BOARD_LED_PIN, HIGH); return;
+    case '4': digitalWrite(BOARD_LED_PIN, LOW); Dxl.setPosition(DXL_G1, G1_LOW, J_SPEED); digitalWrite(BOARD_LED_PIN, HIGH); return;
+    case 't': digitalWrite(BOARD_LED_PIN, LOW); Dxl.setPosition(DXL_G2, G2_CLOSED, J_SPEED); digitalWrite(BOARD_LED_PIN, HIGH); return;
+    case 'g': digitalWrite(BOARD_LED_PIN, LOW); Dxl.setPosition(DXL_G2, G2_OPEN, J_SPEED); digitalWrite(BOARD_LED_PIN, HIGH); return;
     default:
       SerialUSB.println("Invalid command!");
       return;
