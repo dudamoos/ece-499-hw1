@@ -20,18 +20,18 @@ public class InputClient extends Canvas implements WindowListener, KeyListener, 
 	@Override public void keyTyped(KeyEvent arg0) { }
 	public static int keyIndex(KeyEvent e) {
 		switch (e.getKeyCode()) {
-			case KeyEvent.VK_I: return Communicator.KEY_I;
-			case KeyEvent.VK_J: return Communicator.KEY_J;
-			case KeyEvent.VK_K: return Communicator.KEY_K;
-			case KeyEvent.VK_L: return Communicator.KEY_L;
-			case KeyEvent.VK_E: return Communicator.KEY_E;
-			case KeyEvent.VK_D: return Communicator.KEY_D;
+			case KeyEvent.VK_W: return Communicator.KEY_W;
+			case KeyEvent.VK_A: return Communicator.KEY_A;
 			case KeyEvent.VK_S: return Communicator.KEY_S;
+			case KeyEvent.VK_D: return Communicator.KEY_D;
+			case KeyEvent.VK_R: return Communicator.KEY_R;
 			case KeyEvent.VK_F: return Communicator.KEY_F;
 			case KeyEvent.VK_T: return Communicator.KEY_T;
 			case KeyEvent.VK_G: return Communicator.KEY_G;
-			case KeyEvent.VK_Y: return Communicator.KEY_Y;
-			case KeyEvent.VK_H: return Communicator.KEY_H;
+			case KeyEvent.VK_1: return Communicator.KEY_1;
+			case KeyEvent.VK_2: return Communicator.KEY_2;
+			case KeyEvent.VK_3: return Communicator.KEY_3;
+			case KeyEvent.VK_4: return Communicator.KEY_4;
 			default: return Communicator.KEY_UNKNOWN;
 		}
 	}

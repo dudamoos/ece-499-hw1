@@ -34,19 +34,22 @@ public class Communicator {
 	} catch (IOException e) { throw new UncheckedIOException(e); } }
 	
 	/**************************** KEY TRANSMITTER  ****************************/
-	public static final int KEY_I =  0; // Trolley In
-	public static final int KEY_J =  1; // Pivot Left
-	public static final int KEY_K =  2; // Trolley Out
-	public static final int KEY_L =  3; // Pivot Right
-	public static final int KEY_E =  4; // Pulley up
-	public static final int KEY_D =  5; // Pulley down
-	public static final int KEY_S =  6; // Claw open
-	public static final int KEY_F =  7; // Claw close
-	public static final int KEY_T =  8; // Tune left pulley up
-	public static final int KEY_G =  9; // Tune left pulley down
-	public static final int KEY_Y = 10; // Tune right pulley up
-	public static final int KEY_H = 11; // Tune right pulley down
+	public static final int KEY_W =  0; // step forward
+	public static final int KEY_A =  1; // step backward
+	public static final int KEY_S =  2; // pivot left
+	public static final int KEY_D =  3; // pivot right
+	public static final int KEY_R =  4; // full standing
+	public static final int KEY_F =  5; // full crouching 
+	public static final int KEY_T =  6; // claw close
+	public static final int KEY_G =  7; // claw open
+	public static final int KEY_1 =  8; // claw arm top pos
+	public static final int KEY_2 =  9; // claw arm fwd pos
+	public static final int KEY_3 = 10; // claw arm mid pos
+	public static final int KEY_4 = 11; // claw arm right pos
 	public static final int KEY_UNKNOWN = 12;
+	public static final byte[]  chars = {
+		'w', 'a', 's', 'd', 'r', 'f', 't', 'g', '1', '2', '3', '4', '?'
+	};
 	private final boolean[] keys;
 	private boolean runningCmd = true;
 	public static final int CMD_PERIOD = 1000 / 20;
@@ -54,14 +57,12 @@ public class Communicator {
 	public void cmdLoop() { try {
 		while (runningCmd) {
 			final long nextStart = System.currentTimeMillis() + CMD_PERIOD;
-			byte[] buf = new byte[4];
-			buf[0] = (byte)(keys[KEY_J] ? 'j' : keys[KEY_L] ? 'l' : 'n');
-			buf[1] = (byte)(keys[KEY_I] ? 'i' : keys[KEY_K] ? 'k' : 'm');
-			buf[2] = (byte)(keys[KEY_E] ? 'e' : keys[KEY_D] ? 'd' :
-			                keys[KEY_T] ? 't' : keys[KEY_G] ? 'g' :
-			                keys[KEY_Y] ? 'y' : keys[KEY_H] ? 'h' : 'c');
-			buf[3] = (byte)(keys[KEY_S] ? 's' : keys[KEY_F] ? 'f' : 'x');
-			transportCmd.send(buf);
+			for (int i = 0; i < KEY_UNKNOWN; ++i) if (keys[i]) {
+				transportCmd.send(Arrays.copyOfRange(chars, i, i+1));
+				keys[i] = false;
+				break;
+			}
+			// don't send anything if no keys pressed
 			final long throttleDelay = nextStart - System.currentTimeMillis();
 			if (throttleDelay > 0) {
 				try { Thread.sleep(throttleDelay); }

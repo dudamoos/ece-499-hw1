@@ -28,7 +28,7 @@ transport = udp.UdpSocket(shared.RPI_CMD_ADDR, receiving=True)
 transport.set_recv_bufsize(8)
 
 while True:
-	cmd = transport.recv(4).tostring()
+	cmd = transport.recv(1).tostring()
 	#print("Received command: '", cmd, "' @ ", time.time(), sep='')
 	usb.write(cmd)
 
