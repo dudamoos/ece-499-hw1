@@ -13,7 +13,7 @@ static const word FRNT_LB =  500, BACK_LB =    0, HOLD_LB = 125, HI_LB = 818, LO
 static const word J_SPEED = 300;
 
 static const word G1_TOP = 358, G1_FWD = 512, G1_MID = 665, G1_LOW = 818;
-static const word G2_CLOSED = 120, G2_OPEN = 275;
+static const word G2_CLOSED = 120, G2_OPEN = 400;
 
 static word sf_packet0[18] = { DXL_LF,   LO_LF, J_SPEED, DXL_RM,   LO_RM, J_SPEED, DXL_LB,   LO_LB, J_SPEED, DXL_RF, FRNT_RF, J_SPEED, DXL_LM, FRNT_LM, J_SPEED, DXL_RB, FRNT_RB, J_SPEED };
 static word sf_packet1[18] = { DXL_LF, BACK_LF, J_SPEED, DXL_RM, BACK_RM, J_SPEED, DXL_LB, BACK_LB, J_SPEED, DXL_RF,   LO_RF, J_SPEED, DXL_LM,   LO_LM, J_SPEED, DXL_RB,   LO_RB, J_SPEED };
@@ -32,6 +32,11 @@ static word pr_packet3[18] = { DXL_LF,   LO_LF, J_SPEED, DXL_RM,   LO_RM, J_SPEE
 static word pr_packet4[18] = { DXL_LF, BACK_LF, J_SPEED, DXL_RM, FRNT_RM, J_SPEED, DXL_LB, BACK_LB, J_SPEED, DXL_RF,   LO_RF, J_SPEED, DXL_LM,   LO_LM, J_SPEED, DXL_RB,   LO_RB, J_SPEED };
 static word pr_packet5[6] = { DXL_LF, FROT_LF, DXL_RM, BROT_RM, DXL_LB, FROT_LB };
 static word pl_packet5[6] = { DXL_LF, BROT_LF, DXL_RM, FROT_RM, DXL_LB, BROT_LB };
+
+static word pp_packet1[18] = { DXL_LF, BACK_LF, J_SPEED, DXL_RM, FRNT_RM, J_SPEED, DXL_LB, BACK_LB, J_SPEED, DXL_RF, FRNT_RF, J_SPEED, DXL_LM, BACK_LM, J_SPEED, DXL_RB, FRNT_RB, J_SPEED };
+static word pp_packet2[6] = { DXL_LM, FROT_LM, DXL_RM, BROT_RM };
+static word pp_packet3[18] = { DXL_LF, FRNT_LF, J_SPEED, DXL_RM, BACK_RM, J_SPEED, DXL_LB, FRNT_LB, J_SPEED, DXL_RF, BACK_RF, J_SPEED, DXL_LM, FRNT_LM, J_SPEED, DXL_RB, BACK_RB, J_SPEED };
+static word pp_packet4[6] = { DXL_LM, BROT_LM, DXL_RM, FROT_RM };
 
 static word hi_packet[12] = { DXL_RF, HI_RF, DXL_RM, HI_RM, DXL_RB, HI_RB, DXL_LF, HI_LF, DXL_LM, HI_LM, DXL_LB, HI_LB };
 static word lo_packet[12] = { DXL_RF, LO_RF, DXL_RM, LO_RM, DXL_RB, LO_RB, DXL_LF, LO_LF, DXL_LM, LO_LM, DXL_LB, LO_LB };
@@ -155,6 +160,54 @@ void loop() {
       }
       digitalWrite(BOARD_LED_PIN, HIGH);
       return;
+    case 'i':
+      digitalWrite(BOARD_LED_PIN, LOW);
+      walk_phase = 8;
+      Dxl.syncWrite(30, 1, hi_packet, 12); delay(500);
+      Dxl.wheelMode(DXL_RB);
+      Dxl.goalSpeed(DXL_RB, FROT_RB);
+      digitalWrite(BOARD_LED_PIN, HIGH);
+      return;
+    case 'k':
+      digitalWrite(BOARD_LED_PIN, LOW);
+      walk_phase = 7;
+      Dxl.goalSpeed(DXL_RB, 0);
+      Dxl.jointMode(BROADCAST_ID);
+      Dxl.syncWrite(30, 2, hi_packet, 18); delay(500);
+      digitalWrite(BOARD_LED_PIN, HIGH);
+      return;
+    case 'o':
+      digitalWrite(BOARD_LED_PIN, LOW);
+      walk_phase = 8;
+      Dxl.syncWrite(30, 1, hi_packet, 12); delay(500);
+      Dxl.wheelMode(DXL_LB);
+      Dxl.goalSpeed(DXL_LB, FROT_LB);
+      digitalWrite(BOARD_LED_PIN, HIGH);
+      return;
+    case 'l':
+      digitalWrite(BOARD_LED_PIN, LOW);
+      walk_phase = 7;
+      Dxl.goalSpeed(DXL_LB, 0);
+      Dxl.jointMode(BROADCAST_ID);
+      Dxl.syncWrite(30, 2, hi_packet, 18); delay(500);
+      digitalWrite(BOARD_LED_PIN, HIGH);
+      return;
+    case 'u':
+      digitalWrite(BOARD_LED_PIN, LOW);
+      walk_phase = 8;
+      Dxl.syncWrite(30, 1, hi_packet, 12); delay(500);
+      Dxl.wheelMode(DXL_LB); Dxl.wheelMode(DXL_RB);
+      Dxl.goalSpeed(DXL_LB, FROT_LB); Dxl.goalSpeed(DXL_RB, FROT_RB);
+      digitalWrite(BOARD_LED_PIN, HIGH);
+      return;
+    case 'j':
+      digitalWrite(BOARD_LED_PIN, LOW);
+      walk_phase = 7;
+      Dxl.goalSpeed(DXL_LB, 0); Dxl.goalSpeed(DXL_RB, 0);
+      Dxl.jointMode(BROADCAST_ID);
+      Dxl.syncWrite(30, 2, hi_packet, 18); delay(500);
+      digitalWrite(BOARD_LED_PIN, HIGH);
+      return;
     case 'r':
       digitalWrite(BOARD_LED_PIN, LOW);
       Dxl.syncWrite(30, 1, lo_packet, 12); delay(500);
@@ -179,3 +232,4 @@ void loop() {
   }
       //delay(5000);
 }
+

@@ -46,9 +46,16 @@ public class Communicator {
 	public static final int KEY_2 =  9; // claw arm fwd pos
 	public static final int KEY_3 = 10; // claw arm mid pos
 	public static final int KEY_4 = 11; // claw arm right pos
-	public static final int KEY_UNKNOWN = 12;
+	public static final int KEY_I = 12; // ? 1
+	public static final int KEY_K = 13; // ? 2
+	public static final int KEY_O = 14; // ? 1
+	public static final int KEY_L = 15; // ? 2
+	public static final int KEY_J = 16; // ? 2
+	public static final int KEY_U = 17; // ? 2
+	public static final int KEY_UNKNOWN = 18;
 	public static final byte[]  chars = {
-		'w', 'a', 's', 'd', 'r', 'f', 't', 'g', '1', '2', '3', '4', '?'
+		'w', 'a', 's', 'd', 'r', 'f', 't', 'g', '1', '2', '3', '4',
+		'i', 'k', 'o', 'l', 'j', 'u', '?'
 	};
 	private final boolean[] keys;
 	private boolean runningCmd = true;
