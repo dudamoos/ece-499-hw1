@@ -1,82 +1,53 @@
-// Code by Michael Kepler
+Dynamixel Dxl (/* DXL bus on Serial1 (USART1) */ 1); // IDs below
+static const byte DXL_DPAD = 1, DXL_FIRE = 2;
 
-/* Serial device defines for dxl bus */
-#define DXL_BUS_SERIAL1 1  //Dynamixel on Serial1(USART1)  <-OpenCM9.04
-
-/* Dynamixel ID defines */
-#define lw 101
-#define rw 102
-
-Dynamixel Dxl(DXL_BUS_SERIAL1); 
- 
-int speed = 150;
-int timeout = 2000; //in units of ms
-int timestamp = 0;
+static const word FIRE_DOWN = 525; // 150 deg -> 512 ticks
+static const word FIRE_UP   = 477; // 140 deg -> 477.4 ticks
+static const word DPAD_LEFT = 650; // 160 deg -> 545.6 ticks
+static const word DPAD_MID  = 512; // 150 deg -> 512 ticks
+static const word DPAD_RITE = 370; // 140 deg -> 477.4 ticks
 
 void setup() {
-  // Initialize the dynamixel bus:
-  // Dynamixel 2.0 Baudrate -> 0: 9600, 1: 57600, 2: 115200, 3: 1Mbps  
-  Dxl.begin(3);
-  Dxl.setPacketType(DXL_PACKET_TYPE2);
-  delay(1000);
-  
-  pinMode(BOARD_LED_PIN, OUTPUT);
-  digitalWrite(BOARD_LED_PIN, HIGH);
-
-  Dxl.wheelMode(lw); //jointMode() is to use position mode
-  Dxl.wheelMode(rw); //jointMode() is to use position mode 
-  delay(500);
- 
-  //Setup interrupt for keyboard input
-  SerialUSB.attachInterrupt(direction);
-}
-
-void direction(byte* input, byte ncount){
-  SerialUSB.println("Received Command");
-  /*Forward*/
-  if (char(input[0]) == 'i'){
-    digitalWrite(BOARD_LED_PIN, LOW);
-    Dxl.goalSpeed(lw, speed);
-    Dxl.goalSpeed(rw, (speed+15)|0x400);
+    Dxl.begin(3);
+    Dxl.setPacketType(DXL_PACKET_TYPE2);
+    delay(200);
     
-  }
-  /*Backward*/
-  else if (char(input[0]) == 'k'){ 
+    pinMode(BOARD_LED_PIN, OUTPUT);
     digitalWrite(BOARD_LED_PIN, LOW);
-    Dxl.goalSpeed(lw, speed | 0x400);
-    Dxl.goalSpeed(rw, (speed+15));
+    Dxl.jointMode(BROADCAST_ID);
+    Dxl.goalPosition(DXL_FIRE, FIRE_UP  );
+    Dxl.goalPosition(DXL_DPAD, DPAD_MID );
+    delay(500);
+    digitalWrite(BOARD_LED_PIN, HIGH);
     
-  }
-  /*Pivot Left*/
-  else if (char(input[0]) == 'j'){
-    digitalWrite(BOARD_LED_PIN, LOW);
-    Dxl.goalSpeed(lw, speed | 0x400);
-    Dxl.goalSpeed(rw, speed | 0x400);
-   
-  }
-  /*Pivot Right*/
-  else if (char(input[0]) == 'l'){
-    digitalWrite(BOARD_LED_PIN, LOW);
-    Dxl.goalSpeed(lw, speed);
-    Dxl.goalSpeed(rw, speed); 
-  }
-  /*Stop*/
-  else{
-    digitalWrite(BOARD_LED_PIN, HIGH);
-    Dxl.goalSpeed(lw, 0);
-    Dxl.goalSpeed(rw, 0);
-  }
-  timestamp = millis();
+    Timer1.pause();
+    Timer1.setMode(1, TIMER_OUTPUT_COMPARE);
+    Timer1.setCompare(1, Timer1.setPeriod(500000));
+    Timer1.attachInterrupt(1, darkenLed);
+    Timer1.refresh();
+    
+    SerialUSB.println("Commands:");
+    SerialUSB.println("- f = press fire button, s = release fire button");
+    SerialUSB.println("- l, r, m = d-pad press left, right, none (mid)");
+    SerialUSB.attachInterrupt(recvCmd);
 }
 
- 
-void loop(){  
-  delay(200);
-  if ((millis() - timestamp) > timeout){
-    digitalWrite(BOARD_LED_PIN, HIGH);
-    Dxl.goalSpeed(lw, 0);
-    Dxl.goalSpeed(rw, 0); 
-  }
-  
+void recvCmd(byte* input, byte count) {
+    SerialUSB.write(input, count); SerialUSB.println();
+    Timer1.refresh();
+    Timer1.resume();
+    switch(input[0]) {
+        case 'f': digitalWrite(BOARD_LED_PIN, LOW); Dxl.goalPosition(DXL_FIRE, FIRE_DOWN); break;
+        case 's': digitalWrite(BOARD_LED_PIN, LOW); Dxl.goalPosition(DXL_FIRE, FIRE_UP  ); break;
+        case 'l': digitalWrite(BOARD_LED_PIN, LOW); Dxl.goalPosition(DXL_DPAD, DPAD_LEFT); break;
+        case 'r': digitalWrite(BOARD_LED_PIN, LOW); Dxl.goalPosition(DXL_DPAD, DPAD_RITE); break;
+        case 'm': digitalWrite(BOARD_LED_PIN, LOW); Dxl.goalPosition(DXL_DPAD, DPAD_MID ); break;
+        default: digitalWrite(BOARD_LED_PIN, HIGH); SerialUSB.println("Unknown command!"); break;
+    }
 }
 
+void darkenLed() { digitalWrite(BOARD_LED_PIN, HIGH); Timer1.pause(); }
+
+void loop() {
+    delay(1000); // If only I had low power mode ... sigh.
+}
