@@ -10,7 +10,7 @@ LDFLAGS_CVPICAM=-Lraspicam_cv -lraspicamcv
 
 CFLAGS=$(CFLAGS_MAIN) $(CFLAGS_ARCH)
 LDFLAGS+=$(LDFLAGS_CVPICAM) $(LDFLAGS_OPENCV) $(LDFLAGS_PICAM)
-TARGETS=demo_detect
+TARGETS=demo_detect controller
 
 all: objs $(TARGETS)
 objs: # directory for temporary objects
@@ -19,6 +19,8 @@ objs: # directory for temporary objects
 objs/%.o: %.cpp
 	g++ $(CFLAGS) -c $< -o $@
 demo_detect: objs/demo_detect.o
+	g++ $(LDFLAGS) $+ -o $@
+controller: objs/controller.o
 	g++ $(LDFLAGS) $+ -o $@
 clean:
 	rm -rf objs $(TARGETS)
