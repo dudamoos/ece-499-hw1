@@ -83,6 +83,8 @@ int main(int argc, char** argv) {
 	std::vector<cv::Point> enemies; enemies.reserve(5 * 11); // 55 total enemies
 	char lastFire = 's';
 	int64 secStart = cv::getTickCount();
+	int64 lastReaction = cv::getTickCount();
+	int searchDirection = 0;
 	unsigned numFrames = 0;
 	double fps = 0;
 	do {
@@ -103,11 +105,25 @@ int main(int argc, char** argv) {
 		
 		if (ship.x > 0) {
 			int direction = 0;
-			if (ship.x < 50) direction = 1;
-			else if (ship.x > 550) direction = -1;
+			if (ship.x < 50) { direction = 1; lastReaction = cv::getTickCount(); searchDirection = 0; }
+			else if (ship.x > 550) { direction = -1; lastReaction = cv::getTickCount(); searchDirection = 0; }
 			else if (shot.x > 0) {
 				int diff = ship.x - shot.x;
-				if (std::abs(diff) <= 24) direction = ((diff >> 31) & 0xFFFFFFFE) + 1;
+				if (std::abs(diff) <= 24) { direction = ((diff >> 31) & 0xFFFFFFFE) + 1; lastReaction = cv::getTickCount(); searchDirection = 0; }
+			}
+			if ((cv::getTickCount() - lastReaction) >= (cv::getTickFrequency() / 4)) {
+				//if (searchDirection == 0) {
+					//searchDirection = ((cv::randu<int>() >> 31) & 0xFFFFFFFE) + 1;
+					cv::Mat2i pts = cv::Mat(enemies);
+					cv::Mat1i dists = cv::Mat1i::zeros(enemies.size(),1);
+					static const int fromTo[2] = { 0, 0 };
+					cv::mixChannels(&pts, 1, &dists, 1, fromTo, 1);
+					cv::subtract(dists, cv::Scalar(ship.x), dists);
+					int minIdx[2];
+					cv::minMaxIdx(cv::abs(dists), nullptr, nullptr, minIdx, nullptr);
+					searchDirection = ((dists(minIdx[0]) >> 31) & 0xFFFFFFFE) + 1;
+				//}
+				direction = searchDirection;
 			}
 			
 			char dpadBuf[1];
@@ -135,6 +151,8 @@ int main(int argc, char** argv) {
 		}
 		cv::putText(showFrame, cv::format("FPS: %3.2f", fps),
 			cv::Point(520, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 255, 0));
+		cv::putText(showFrame, searchDirection == 0 ? "R" : "S",
+			cv::Point(480, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 255, 0));
 		
 		cv::imshow("Detectors", showFrame);
 		if (cv::waitKey(10) == 27) exit = true;
@@ -143,6 +161,12 @@ int main(int argc, char** argv) {
 	cv::destroyWindow("Raw Camera");
 	cv::destroyWindow("Detectors");
 	raspiCamCvReleaseCapture(&capture);
+	{
+		char startBuf[1] = { 's' };
+		write(serial, startBuf, sizeof(char));
+		startBuf[0] = 'm';
+		write(serial, startBuf, sizeof(char));
+	}
 	close(serial);
 	return 0;
 }
